@@ -1,4 +1,4 @@
-// scripts/build/package-release.mjs
+﻿// scripts/build/package-release.mjs
 //
 // Build a self-contained, deployable release artifact from a Next.js
 // "standalone" build. Node standard library only. No network access,
@@ -29,7 +29,9 @@ import { copyReleaseTree } from "./copy-release-tree.mjs";
 import { includeRuntimePackage, resolveRuntimeManifest } from "./include-runtime-package.mjs";
 import { supplementSharp, verifySharp, pruneRedundantSharp, assertSharpRuntimeBounded } from "./sharp-runtime.mjs";
 import { createRequire } from "node:module";
-import { writeContentSidecar } from "./content-snapshot.mjs";
+// content-snapshot.mjs 留在 scripts/ 根 (它是 CONTENT_TOOL_FILES 之一,
+// 要打进 content-tools 装到生产服务器), 所以从 scripts/build/ 过去是 ..
+import { writeContentSidecar } from "../content-snapshot.mjs";
 
 const copyLog = (message) => writeSync(1, "package-release: " + message + "\n");
 
