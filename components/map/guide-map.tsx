@@ -2487,9 +2487,43 @@ function useFullscreen(opts: {
     };
   }, [detectCompactLabels]);
 
+  /**
+   * 进入全屏后尝试锁横屏。
+   *
+   * 平台支持差异 (不能假设 lock 一定存在):
+   *   - Android Chrome / Edge / 微信 (Chromium 内核): 可用
+   *   - iOS Safari: 至今不实现 Screen Orientation Lock, 且普通元素也不支持
+   *     Fullscreen API —— 这条会静默返回 false, 由 CSS 的横屏媒体查询兜底布局
+   *   - 桌面浏览器: lock() 抛错 (没有方向概念), 同样静默忽略
+   *
+   * 必须在 requestFullscreen() 之后调用: 部分实现要求此时处于 fullscreen 状态。
+   */
+  const tryLockLandscape = useCallback(async () => {
+    const so =
+      typeof screen === "undefined"
+        ? undefined
+        : (screen.orientation as
+            | (ScreenOrientation & { lock?: (o: string) => Promise<void> })
+            | undefined);
+    if (typeof so?.lock !== "function") return false;
+    try {
+      await so.lock("landscape");
+      return true;
+    } catch (err) {
+      logger.debug("[fullscreen] orientation lock unavailable", err);
+      return false;
+    }
+  }, []);
+
   const toggleFullscreen = useCallback(async () => {
     if (fullscreenPendingRef.current) return;
     if (document.fullscreenElement) {
+      // 必须先解锁: 否则页面会被永久锁在横屏, 退出全屏也回不去
+      try {
+        screen.orientation?.unlock?.();
+      } catch {
+        /* 桌面浏览器无方向概念, 忽略 */
+      }
       await document.exitFullscreen().catch(() => {});
       return;
     }
@@ -2509,6 +2543,7 @@ function useFullscreen(opts: {
     try {
       const target = containerRef.current ?? document.documentElement;
       const entered = await tryFullscreen(target);
+      if (entered) await tryLockLandscape();
       if (!entered && target !== document.documentElement) {
         await tryFullscreen(document.documentElement);
       }
@@ -2519,7 +2554,7 @@ function useFullscreen(opts: {
         setCompactLabels(detectCompactLabels());
       }
     }
-  }, [containerRef, detectCompactLabels]);
+  }, [containerRef, detectCompactLabels, tryLockLandscape]);
 
   // 主路径: fullscreenchange listener — 退出时同步滚到地图位置
   //   - fullscreenchange 是同步事件, 在 listener 回调里直接 scrollTo, 浏览器还没 paint 中间帧
