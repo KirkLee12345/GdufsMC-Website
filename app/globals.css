@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@tailwind utilities;
 
 :root {
   --background: #ffffff;
@@ -36,56 +35,35 @@ html {
   font-size: clamp(16px, 0.55vw + 0.5rem, 19px);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/**
+ * body 配色必须带 !important。
+ *
+ * Next.js 的默认 404 / 500 页会在 </body> 之前注入一段内联 <style>:
+ *   @media (prefers-color-scheme: dark) { body { color:#fff; background:#000 } }
+ * 本文件在 <head>, 那段内联样式在文档末尾, 同优先级下后者胜出。系统处于
+ * 深色模式时, 404 页会拿到黑底白字的 body —— 而本站 <main> 是 bg-white,
+ * 于是白底白字, 整页文字看不见。
+ *
+ * 本站只设计了浅色主题 (全仓库没有任何 dark: 变体), 所以强制浅色是正确的。
+ * 若将来要支持深色模式, 应改用 app/not-found.tsx 自定义错误页, 而非撤掉这里的
+ * !important —— 那样能真正控制配色, 不必和框架注入的样式抢。
+ */
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--foreground) !important;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* 渐变文字工具 */
-.gradient-text {
-  background: linear-gradient(135deg, #58baff 0%, #a855f7 50%, #ec4899 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* 玻璃拟态 */
-.glass {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.glass-strong {
-  background: rgba(20, 20, 30, 0.6);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* 同上: Next 默认错误页的 "404" 竖线在深色分支被改成白色,
+   压回浅色边框, 否则白底上会消失。 */
+@media (prefers-color-scheme: dark) {
+  .next-error-h1 {
+    border-right-color: rgba(0, 0, 0, 0.3) !important;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
-  }
-
-  .grid-bg {
-    background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent);
   }
 }
