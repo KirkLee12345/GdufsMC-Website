@@ -60,6 +60,7 @@ export default function Home() {
                             {/* 顶部小框：Minecraft 高校联盟成员 */}
                             <div className="text-2xl sm:text-2xl lg:text-3xl font-light text-slate-600 sm:text-slate-500 mb-2">
                                 欢迎来到
+                                <br className="sm:hidden" />
                                 <a href="https://www.mualliance.cn/" target="_blank" className="inline-flex items-center gap-1.5 px-2.5 py-1 ml-2 mt-1.5 mb-2 md:mb-3 text-[0.875rem] font-mono text-emerald-600 bg-white/60 rounded-sm">
                                     {/* eslint-disable-next-line @next/next/no-img-element -- 本地 40x20 小图标，无需 next/image 优化 */}
                                     <img src="/icons/home/MUA图标.webp" alt="" className="w-10 h-5 flex-shrink-0"/>

@@ -45,8 +45,8 @@ export default async function NewsPage() {
         </div>
 
         {/* 下半部分: 主栏 (动态列表) + 侧栏 (积分榜) */}
-        <div className="mt-10 sm:mt-11 flex flex-col lg:flex-row gap-11.5 sm:gap-8">
-          <div className="sm:hidden lg:w-72 lg:shrink-0 px-1 sm:px-0">
+        <div className="mt-10 sm:mt-11 flex flex-col md:flex-row gap-11.5 sm:gap-8">
+          <div className="md:hidden px-1">
             <Leaderboard data={leaderboard} />
           </div>
           {/* 主栏: 全部动态 */}
@@ -59,7 +59,7 @@ export default async function NewsPage() {
           </div>
 
           {/* 侧栏: 小游戏积分榜 (lg 以上显示, sticky 跟随滚动) */}
-          <div className="hidden sm:block lg:w-72 lg:shrink-0">
+          <div className="hidden md:block w-60 lg:w-72 shrink-0">
             <Leaderboard data={leaderboard} />
           </div>
         </div>
