@@ -1,5 +1,5 @@
 import { getLatestNews, getNewsList } from "@/lib/news";
-import { getLeaderboard } from "@/lib/leaderboard";
+import { getLeaderboard } from "@/lib/news/leaderboard";
 import { HeroCarousel } from "@/components/news/hero-carousel";
 import { NewsList } from "@/components/news/list";
 import { Leaderboard } from "@/components/news/leaderboard";

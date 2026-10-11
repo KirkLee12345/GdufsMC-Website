@@ -9,7 +9,7 @@
  */
 
 import { IconExternalLink } from "@tabler/icons-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/global/utils";
 
 export type InlineLinkAccent = "sky" | "emerald" | "amber" | "slate";
 

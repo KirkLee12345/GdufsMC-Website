@@ -91,7 +91,7 @@ collections:
     slug: "{{fields.slug}}"
     extension: md
     format: yaml-frontmatter
-    fields: # 对应 lib/news.ts 的 NewsFrontmatter
+    fields: # 对应 lib/news/index.ts 的 NewsFrontmatter
       - name: slug
         label: URL slug
         widget: string

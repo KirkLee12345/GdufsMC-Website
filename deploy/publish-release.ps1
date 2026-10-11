@@ -1064,7 +1064,7 @@ function Clear-OldReleases {
 #         "zoneId": "zone-3vdw90vs6duq",
 #         "region": "ap-guangzhou"
 #       }
-#   * A CAM sub-account with a least-privilege policy (see deploy/README.md):
+#   * A CAM sub-account with a least-privilege policy (see README.md, 五、部署后自动清 EdgeOne 缓存):
 #       Action  : teo:CreatePurgeTask, teo:DescribePurgeTasks
 #       Resource: qcs::teo::uin/<主账号UIN>:zone/<zone-id>
 # ===========================================================================

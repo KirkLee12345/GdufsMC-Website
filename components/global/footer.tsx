@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IconX } from "@tabler/icons-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/global/utils";
 import { SERVERS } from "@/data/global/servers";
 
 /* -------------------- 石头分隔条（保持之前样式） -------------------- */

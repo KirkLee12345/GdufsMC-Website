@@ -12,7 +12,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Release staging trees produced by scripts/package-release.mjs, plus the
+    // Release staging trees produced by scripts/build/package-release.mjs, plus the
     // deploy scratch dirs. They are gitignored, but eslint does not read
     // .gitignore, so without these a local `pnpm lint` after a packaging
     // attempt lints the bundled, dereferenced stage and reports thousands of

@@ -15,7 +15,9 @@
  */
 
 const CACHE_VERSION = "v1";
-const CACHE_NAME = `mc-maps-${CACHE_VERSION}`;
+// 前缀必须与 activate 里的清理前缀同源, 否则 bump 版本后旧 cache 永远不会被删
+const CACHE_PREFIX = "mc-maps-";
+const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 // 缓存路径 pattern — 只缓存地图资源
 const CACHE_PATTERNS = [
   /^\/images\/maps\/.*\.(webp|png|jpg|jpeg|avif)$/i,
@@ -34,7 +36,7 @@ self.addEventListener("activate", (event) => {
       const keys = await caches.keys();
       await Promise.all(
         keys
-          .filter((k) => k.startsWith("server-maps-") && k !== CACHE_NAME)
+          .filter((k) => k.startsWith(CACHE_PREFIX) && k !== CACHE_NAME)
           .map((k) => caches.delete(k)),
       );
       // 立即接管所有 open clients (用户已经在浏览的页面), 不用刷新

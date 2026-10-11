@@ -2,12 +2,12 @@
  * MC 服务器数据 — 全站"唯一真相源" (Single Source of Truth)
  *
  * 之前散落在三处, 同一个 host / label 写 3 遍:
- *   - lib/server/status.ts          SERVER_TARGETS        (status card / API)
- *   - data/guide/servers.ts         SERVERS               (guide 页服务器列表)
+ *   - lib/global/server/status.ts          SERVER_TARGETS        (status card / API)
+ *   - data/guide/servers.ts                SERVERS               (guide 页服务器列表; 已并入本文件)
  *   - components/global/footer.tsx  SERVER_GROUPS         (footer 服务器地址)
  *
  * 现在统一在这里:
- *   - status -> lib/server/status.ts          从 SERVERS 派生 SERVER_TARGETS (附加 port)
+ *   - status -> lib/global/server/status.ts          从 SERVERS 派生 SERVER_TARGETS (附加 port)
  *   - guide  -> app/guide/page.tsx            从 SERVERS + GROUP_META 渲染服务器列表卡
  *   - footer -> components/global/footer.tsx  从 SERVERS 派生 SERVER_GROUPS
  *

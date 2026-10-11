@@ -84,7 +84,7 @@ jobs:
           # public/admin/index.html. If that script is edited without the policy
           # following, the admin renders blank with a console-only CSP error, so
           # the match is asserted here rather than left to a production smoke test.
-          node scripts/test-csp.mjs
+          node scripts/tests/test-csp.mjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Validate content and regression tests
         run: |
@@ -92,23 +92,23 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node scripts/verify-content-root.mjs . --json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          powershell -NoProfile -NonInteractive -File scripts/test-content-operations.ps1
+          powershell -NoProfile -NonInteractive -File scripts/tests/test-content-operations.ps1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          powershell -NoProfile -NonInteractive -File scripts/test-content-activation.ps1
+          powershell -NoProfile -NonInteractive -File scripts/tests/test-content-activation.ps1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          powershell -NoProfile -NonInteractive -File scripts/test-content-purge.ps1
+          powershell -NoProfile -NonInteractive -File scripts/tests/test-content-purge.ps1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          powershell -NoProfile -NonInteractive -File scripts/test-content-backup-retention.ps1
+          powershell -NoProfile -NonInteractive -File scripts/tests/test-content-backup-retention.ps1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           # CMS content-branch mechanics in a throwaway local repo. Guards the
           # invariants a production incident would only reveal during a save.
-          node scripts/test-cms-branch-lifecycle.mjs outputs/cms-branch-lifecycle.json
+          node scripts/tests/test-cms-branch-lifecycle.mjs outputs/cms-branch-lifecycle.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Test automatic release preparation and delivery
         run: |
-          powershell -NoProfile -NonInteractive -File scripts/test-artifact-publish.ps1
+          powershell -NoProfile -NonInteractive -File scripts/tests/test-artifact-publish.ps1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          pwsh -NoProfile -NonInteractive -File scripts/test-artifact-publish.ps1
+          pwsh -NoProfile -NonInteractive -File scripts/tests/test-artifact-publish.ps1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Package standalone trusted content tools
         run: |
@@ -143,20 +143,20 @@ jobs:
           $tar = Join-Path $env:SystemRoot 'System32/tar.exe'
           & $tar -xf $archive -C $cmsRoot --strip-components=1
           if ($LASTEXITCODE -ne 0) { throw 'CMS source extraction failed' }
-          node scripts/patch-cms.mjs $cmsRoot
+          node scripts/cms/patch-cms.mjs $cmsRoot
           if ($LASTEXITCODE -ne 0) { throw 'CMS source validation failed' }
           Push-Location $cmsRoot
           try {
             pnpm install --frozen-lockfile --config.package-import-method=copy --ignore-scripts
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           } finally { Pop-Location }
-          node --test scripts/test-cms-image-converter.mjs
+          node --test scripts/tests/test-cms-image-converter.mjs
           if ($LASTEXITCODE -ne 0) { throw 'CMS converter tests failed' }
-          node scripts/test-cms-patch.mjs $cmsRoot
+          node scripts/tests/test-cms-patch.mjs $cmsRoot
           if ($LASTEXITCODE -ne 0) { throw 'CMS patch tests failed' }
-          node scripts/build-cms-release.mjs $cmsRoot (Join-Path $env:GITHUB_WORKSPACE 'public/admin/vendor/sveltia-0.227.0')
+          node scripts/cms/build-cms-release.mjs $cmsRoot (Join-Path $env:GITHUB_WORKSPACE 'public/admin/vendor/sveltia-0.227.0')
           if ($LASTEXITCODE -ne 0) { throw 'CMS build failed' }
-          node scripts/verify-cms-release.mjs (Join-Path $env:GITHUB_WORKSPACE 'public/admin/vendor/sveltia-0.227.0')
+          node scripts/cms/verify-cms-release.mjs (Join-Path $env:GITHUB_WORKSPACE 'public/admin/vendor/sveltia-0.227.0')
           if ($LASTEXITCODE -ne 0) { throw 'CMS verification failed' }
       - name: Package release
         env:
@@ -164,7 +164,7 @@ jobs:
           # pairs this build with its validated data for publish and rollback.
           RELEASE_EXTERNAL_CONTENT: '1'
         run: |
-          node scripts/package-release.mjs
+          node scripts/build/package-release.mjs
           $code = $LASTEXITCODE
           Write-Host "package-release process exit code: $code"
           if ($code -ne 0) { exit $code }
@@ -199,7 +199,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Archive extraction failed: $LASTEXITCODE" }
           if (-not (Test-Path -LiteralPath (Join-Path $smoke 'server.js'))) { throw 'Extracted server.js missing' }
           Write-Host "Extraction completed in $($timer.Elapsed.TotalSeconds) seconds"
-          node scripts/verify-cms-release.mjs (Join-Path $smoke 'public/admin/vendor/sveltia-0.227.0')
+          node scripts/cms/verify-cms-release.mjs (Join-Path $smoke 'public/admin/vendor/sveltia-0.227.0')
           if ($LASTEXITCODE -ne 0) { throw 'Extracted CMS verification failed' }
       - name: Test extracted archive (not source workspace)
         timeout-minutes: 8
@@ -216,7 +216,7 @@ jobs:
           $smoke = Join-Path $env:RUNNER_TEMP "release-smoke-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT"
           Remove-Item Env:NODE_PATH -ErrorAction SilentlyContinue
           Write-Host "Starting smoke test from $smoke"
-          node scripts/test-release.mjs $smoke
+          node scripts/tests/test-release.mjs $smoke
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Test image API from extracted archive
         timeout-minutes: 5
@@ -229,7 +229,7 @@ jobs:
           Remove-Item Env:NODE_PATH -ErrorAction SilentlyContinue
           # Workspace sharp generates fixtures only. HTTP conversion must use
           # the extracted release's own dependencies, outside the checkout.
-          node scripts/test-image-api.mjs $smoke outputs/image-api-http-test.json
+          node scripts/tests/test-image-api.mjs $smoke outputs/image-api-http-test.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload image API test report
         if: ${{ always() }}
@@ -264,9 +264,8 @@ jobs:
             deploy/process-release-queue.ps1
             deploy/submit-release.ps1
             deploy/setup-release-publish.ps1
-            deploy/AUTOPUBLISH.md
-            deploy/README.md
-            deploy/CONTENT-SYNC.md
+            # 运维文档已合并到仓库根 README.md，随包附一份，方便离线排障
+            README.md
 
   publish:
     needs: build

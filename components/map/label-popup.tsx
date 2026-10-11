@@ -30,7 +30,7 @@ import type {
   NewLabelProduct,
 } from "@/lib/map/labels";
 import { ImageLightbox } from "./image-lightbox";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/global/utils";
 
 export interface LabelPopupProps {
   label: NewLabel;
@@ -287,7 +287,9 @@ function DesktopPopup({
                     .split(/\s+/)
                     .filter((name) => name.length > 0)
                     .map((name, i) => (
-                      <span key={i}>{name}</span>
+                      // key 里带 i: 同一个 builder 字符串里出现重复词("红石 红石")时,
+                      // 纯 name 会产生重复 key, React 会告警
+                      <span key={`${i}:${name}`}>{name}</span>
                     ))}
                 </span>
               </div>
@@ -539,7 +541,7 @@ function MobilePopup({
                       .split(/\s+/)
                       .filter((name) => name.length > 0)
                       .map((name, i) => (
-                        <span key={i}>{name}</span>
+                        <span key={`${i}:${name}`}>{name}</span>
                       ))}
                   </span>
                 </div>
@@ -626,7 +628,10 @@ function MobileImagesGrid({
         >
           {images.map((src, i) => (
             <button
-              key={i}
+              // 用图片 URL 当 key 而不是下标: images 会随选中的地标整体替换,
+              // index key 会让 React 复用上一次的 DOM 节点, 缩略图和灯箱的
+              // currentIndex 高亮会短暂错位。
+              key={src}
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
@@ -662,6 +667,9 @@ function MobileImagesGrid({
       {padded.map((src, i) =>
         src ? (
           <button
+            // 这里 key={i} 是对的, 不要改成 src: padded 是定长槽位数组, 身份就是
+            // 槽位下标 —— 补出来的 null 互相等价, 用 src 当 key 会出现多个 null
+            // 重复 key。槽位顺序也永远不变(纯布局), 不存在重排问题。
             key={i}
             type="button"
             onClick={(e) => {
@@ -747,6 +755,7 @@ function ImageThumbnails({
   return (
     <div>
       <div className="flex gap-1">
+        {/* key={i} 同上: 定长槽位数组, 下标就是身份, null 占位互相等价 */}
         {slots.map((src, i) =>
           src ? (
             <button

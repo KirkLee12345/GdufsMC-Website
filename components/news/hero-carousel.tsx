@@ -20,7 +20,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/global/utils";
 import { CATEGORY_BADGE_CLASS } from "@/lib/news/types";
 import type { NewsItem } from "@/lib/news/types";
 

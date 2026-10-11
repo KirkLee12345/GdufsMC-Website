@@ -17,7 +17,7 @@
 import { Children, useCallback, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { IconChevronLeft, IconChevronRight, IconExternalLink, IconLock } from "@tabler/icons-react";
 import { useCarousel } from "@/components/guide/hooks/use-carousel";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/global/utils";
 
 export interface StepLink {
   label: string;

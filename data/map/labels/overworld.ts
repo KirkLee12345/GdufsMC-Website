@@ -983,7 +983,7 @@ export const OVERWORLD_LABELS: NewLabel[] = [
 
     /* ============================================================
      * Transit 站名 + 珍珠传送 (visibleWhen: "transit" — 只在交通开启时显示)
-     * 跟 lib/sample-transit/overworld.ts 的 station 共享 x, z 坐标
+     * 跟 data/map/transit/overworld.ts 的 station 共享 x, z 坐标
      * 这里负责"文字"层, transit 数据负责"画圆/胶囊"层, 一起呈现
      *
      * popup: true → 点击弹出信息卡 (有 description 就够, 也可以加 images)

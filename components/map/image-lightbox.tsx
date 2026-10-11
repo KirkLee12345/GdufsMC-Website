@@ -10,7 +10,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/global/utils";
 
 /** 缩放范围 — 跟地图保持同款手感: 1× 默认, 最多 8× */
 const MIN_K = 1;
@@ -573,7 +573,9 @@ export function ImageLightbox({
             const active = i === currentIndex;
             return (
               <button
-                key={i}
+                // 用图片 URL 当 key: images 整体切换时(index key) React 会复用旧
+                // DOM, currentIndex 高亮会错位一帧, 灯箱切换时能看见。
+                key={src}
                 type="button"
                 onClick={() => goTo(i)}
                 aria-label={`第 ${i + 1} 张`}

@@ -1,5 +1,5 @@
 // Installed, administrator-owned tool. Candidates contribute data only.
-// See deploy/CONTENT-SYNC.md for the queue, maintenance and recovery protocol.
+// See README.md (二、内容外置与内容自动同步) for the queue, maintenance and recovery protocol.
 import { createHash, randomUUID } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';

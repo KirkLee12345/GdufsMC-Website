@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { HeaderNav } from "@/components/global/header-nav";
 import { Footer } from "@/components/global/footer";
+import { SwRegister } from "@/components/global/sw-register";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,6 +20,8 @@ export default function RootLayout({
           <HeaderNav />
           <main className="flex-1 bg-white">{children}</main>
           <Footer />
+          {/* SW 已停用 (ENABLED=false); 挂载它是为了注销并清理遗留缓存/注册 */}
+          <SwRegister />
         </body>
       </html>
   );

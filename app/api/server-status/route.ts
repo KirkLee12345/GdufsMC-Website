@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { queryAllServers, type ServerStatus } from "@/lib/server/status";
-import { logger } from "@/lib/logger";
+import { queryAllServers, type ServerStatus } from "@/lib/global/server/status";
+import { logger } from "@/lib/global/logger";
 
 // 实时数据：路由本身不缓存
 export const dynamic = "force-dynamic";

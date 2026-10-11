@@ -42,13 +42,18 @@ gdufscraft.top {
     #   E2 架构: public/images/ 不进 release, 维护在 H:\GDUFSMC-web\public\images\
     #   Caddy file_server 直接吐, 比过 Node 快 10x
     #   新增图片需要手动同步到 H:\GDUFSMC-web\public\images\ (或扩展 publish-release.ps1 加 sync 步骤)
-    #   Cache-Control: max-age=60 浏览器短缓存 (改图后 1 分钟内刷新能看到)
-    #     不设 s-maxage → EdgeOne 按默认规则 (通常继承 max-age 或按站点 cache rule)
+    #   Cache-Control 分两层, EdgeOne 整站规则是「遵循源站 Cache-Control」:
+    #     max-age=180         浏览器缓存 3 分钟 (改图后 3 分钟内刷新就能看到)
+    #     s-maxage=259200     EdgeOne 节点缓存 3 天 (地图瓦片数量多/体积大,
+    #                         回源校园服务器代价高, 交给 CDN 扛; 站点侧无
+    #                         /images 的独立 rule, 所以值必须由源站给出)
+    #   ⚠ 改图后 CDN 最长 3 天才更新。Service Worker 已停用 (见 sw-register.tsx),
+    #     所以浏览器侧不会再有更长的离线缓存叠加, 3 天就是最终上限。
     @publicImages path /images/*
     handle @publicImages {
         root * H:\GDUFSMC-web\public
         file_server
-        header Cache-Control "public, max-age=60"
+        header Cache-Control "public, max-age=180, s-maxage=259200"
     }
 
     # /download/* 公开下载目录, 直接由 Caddy 服务, 不走 Next.js

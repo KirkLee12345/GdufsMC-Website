@@ -1,7 +1,7 @@
 /**
  * News 数据访问层 — server-only, 不要在 client component 里 import 这里
  *
- * 抽象层 (来自 data/news/items.ts 注释里的承诺):
+ * 抽象层契约:
  * - getNewsList() / getNewsBySlug() / getLatestNews() 接口稳定
  * - 内部实现: 当前是 content/news/*.md (Markdown + frontmatter)
  * - 后期换后台 (DB / API) 只改这个文件, page.tsx 0 改动
@@ -9,7 +9,7 @@
  * 当前实现:
  * - 内容物理位置: content/news/*.md
  * - frontmatter: title / date / category / summary / cover / badge / pinned
- * - slug: 从 frontmatter.title 自动派生 (pinyin, lib/slugify.ts)
+ * - slug: 从 frontmatter.title 自动派生 (pinyin, lib/news/slugify.ts)
  *
  * 客户端可见的类型/常量:
  * - 见 ./types.ts (NewsItem / NewsCategory / CATEGORY_BADGE_CLASS)
@@ -21,7 +21,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import matter from "gray-matter";
 import { cache } from "react";
-import { slugify } from "@/lib/slugify";
+import { slugify } from "@/lib/news/slugify";
 import type { NewsFrontmatter, NewsItem } from "./types";
 
 // 重新导出类型, 让 `@/lib/news` 仍然是完整入口 (服务端使用)

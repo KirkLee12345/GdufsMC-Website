@@ -2,24 +2,22 @@
 /* eslint-disable @next/next/no-img-element -- 项目图标用 /public 下的 SVG 文件, next/image 只优化位图不优化 SVG, 这里 <img> 是正确的 */
 
 /**
- * 新版导览地图 — 多瓦片 SVG 拼图
+ * 导览地图 — 多瓦片 SVG 拼图
  *
- * 跟 guide-map.tsx 的差异:
- * - 数据从 prop 传入 (worlds: NewWorldMeta[]), 不再硬编码 WORLDS
+ * 设计要点:
+ * - 数据从 prop 传入 (worlds: NewWorldMeta[]), 不硬编码
  * - viewBox 用各维度的实际网格尺寸 (比例差异大, 1.50 ~ 3.08), 容器 aspect ratio
- *   跟随当前维度, 避免 1.89 固定比例对过宽/过窄的图造成大幅裁切
+ *   跟随当前维度, 避免固定比例对过宽/过窄的图造成大幅裁切
  * - 每个维度渲染 N 个 <image> (一张瓦片一个), 而非一张大图; 78 张主世界瓦片
  *   实测浏览器能并行解码, 总滞留 < 单张 17MB WebP
- * - 缩放/拖动/全屏/HUD/横屏提示全部沿用 guide-map 逻辑
- *
- * 2026-09-07 v1: 初始版本, 跟 guide-map.tsx 同步
+ * - 缩放/拖动/全屏/HUD/横屏提示
  */
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import { IconX } from "@tabler/icons-react";
-import { cn } from "@/lib/utils";
-import { logger } from "@/lib/logger";
+import { cn } from "@/lib/global/utils";
+import { logger } from "@/lib/global/logger";
 import type {
   NewMapLayer,
   NewMapTile,
@@ -32,6 +30,10 @@ import type {
   NewLabel,
   NewLabelGroups,
 } from "@/lib/map/labels";
+// 地标 / 交通数据本体: 在 client 侧直接 import, 避免被序列化进 RSC flight payload。
+// 类型仍然从 @/lib/map/* 引(那边是 server-only 的, 只放类型)。
+import { LABELS } from "@/data/map/labels";
+import { TRANSIT } from "@/data/map/transit";
 import { MapLabels } from "./map-labels";
 import { LabelPopup } from "./label-popup";
 import type { NewTransitGroups } from "@/lib/map/transit";
@@ -40,7 +42,7 @@ import {
   TransitStations,
   PearlLines,
 } from "./transit-overlay";
-import { toPinyin } from "@/lib/search/pinyin";
+import { toPinyin } from "@/lib/map/search/pinyin";
 // 几何变换 + 预加载 cache (pure functions, 2026-09-17 从 guide-map.tsx 抽出来)
 import {
   MAX_ZOOM,
@@ -627,38 +629,28 @@ const clamp = (n: number, min: number, max: number) =>
 export interface GuideMapProps {
   worlds: NewWorldMeta[];
   /**
-   * 标签数据 (按维度分组) — 父组件从数据层传进来
-   * 不传就不渲染标签 (老用法 / 教程里用)
+   * 地标数据 — 缺省用 @/data/map/labels 的全量数据(在本组件内部 import)。
+   * 只有测试或自定义数据源才需要显式传入。
    */
   labels?: NewLabelGroups;
   /**
-   * 地铁 / 交通网络数据 (按维度分组, lines + stations)
-   * 不传就不渲染交通层 (老用法 / 教程里用)
+   * 交通网络数据 — 缺省用 @/data/map/transit 的全量数据(在本组件内部 import)。
    */
   transit?: NewTransitGroups;
 }
 
-export function GuideMap({ worlds, labels, transit }: GuideMapProps) {
-  // 缺省 fallback 用 useMemo 包装 — 让引用稳定, 不然放进 deps 会让 useMemo/useCallback 每次重 render
-  //   (空对象每次新建, 引用变化, deps 看着像变了)
-  const lb: NewLabelGroups = useMemo(
-    () =>
-      labels ?? {
-        overworld: [],
-        nether: [],
-        end: [],
-      },
-    [labels],
-  );
-  const mt: NewTransitGroups = useMemo(
-    () =>
-      transit ?? {
-        overworld: { lines: [], stations: [] },
-        nether: { lines: [], stations: [] },
-        end: { lines: [], stations: [] },
-      },
-    [transit],
-  );
+export function GuideMap({ worlds, labels = LABELS, transit = TRANSIT }: GuideMapProps) {
+  // labels / transit 现在由本组件直接从数据层 import, 不再由 app/map/page.tsx 当
+  // props 传进来。原因: GuideMap 是 client component, 而 app/map/page.tsx 是
+  // server component —— App Router 会把 server→client 的 props 序列化进 RSC
+  // flight payload 写进 HTML, 于是 116 条地标 + 交通网络(116+ 条, 约 2000 行数据)
+  // 会在地图挂载之前就随 HTML 下发, 实测占 map.html 的 78.5 KB / 135.4 KB(61%)。
+  // 移到客户端 import 之后, 这些字节变成 /map 路由自己的 chunk: 同样只在这个
+  // 路由下载, 但有内容指纹可以被浏览器和 CDN 长期缓存。
+  //
+  // 留 props 是为了测试和将来可能出现的自定义数据源; 不传就用默认的全量数据。
+  const lb: NewLabelGroups = labels;
+  const mt: NewTransitGroups = transit;
   // ---- 1. 路由/视图 ----
   // 列表为空时 fallback 到 overworld 防止 .find 出 undefined
   const initialId: NewWorldId = worlds[0]?.id ?? "overworld";

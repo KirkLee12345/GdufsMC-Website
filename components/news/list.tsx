@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import { IconArrowRight } from "@tabler/icons-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/global/utils";
 import { CATEGORY_BADGE_CLASS } from "@/lib/news/types";
 import type { NewsItem } from "@/lib/news/types";
 

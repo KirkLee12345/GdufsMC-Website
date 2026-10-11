@@ -1,11 +1,11 @@
 import type { NextConfig } from "next";
 
-import { adminContentSecurityPolicy, mainContentSecurityPolicy } from "./csp.mjs";
+import { adminContentSecurityPolicy, mainContentSecurityPolicy } from "./scripts/build/csp.mjs";
 
 /**
  * 安全 HTTP 响应头 + CSP
  *
- * CSP 的实际内容在 csp.mjs 里构造 (与 scripts/test-csp.mjs 共用同一个模块,
+ * CSP 的实际内容在 scripts/build/csp.mjs 里构造 (与 scripts/tests/test-csp.mjs 共用同一个模块,
  * 策略和它的测试不可能对不上)。这里只负责挂到哪条路径上。
  *
  * 设计权衡:
@@ -59,9 +59,22 @@ const MAIN_SECURITY_HEADERS: { key: string; value: string }[] = [
 ];
 
 // /_next/static/* — Next.js hashed 静态资源, 永久缓存 (immutable)
-const STATIC_ASSET_HEADERS: { key: string; value: string }[] = [
-  { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-];
+//
+// dev 下完全不设这个头, 而不是改成 no-store:
+// production 的 chunk 文件名带 content hash, 变了就换 URL, immutable 安全。
+// 但 dev 的 chunk 文件名不带 hash (形如 _0yg05i-._.js), 没有 hash 就没有变更检测,
+// 浏览器会永久复用磁盘里的旧 chunk。源码大范围移动/改 import 后就会炸:
+//   "Module [project]/lib/utils.ts was instantiated ... but the module factory
+//    is not available"
+// —— chunk 是旧的, 指向已被删除的模块路径, 服务端已经找不到它。
+//
+// 之所以是「整条不注册」而不是「设 no-store」: Next 只要看到 /_next/* 上带了
+// cache-control 这个 key 就无条件警告 (next/dist/lib/load-custom-routes.js
+// 只比对 header.key, 不看 value), 改值消不掉。dev 交给 Next 默认处理即可。
+const STATIC_ASSET_HEADERS: { key: string; value: string }[] =
+  process.env.NODE_ENV === "development"
+    ? []
+    : [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
 
 // /api/* — 动态响应, 永不缓存
 const API_HEADERS: { key: string; value: string }[] = [
@@ -143,10 +156,11 @@ const nextConfig: NextConfig = {
         headers: API_HEADERS,
       },
       // /_next/static/* 路径: hashed 静态资源, immutable (覆盖 MAIN 的 s-maxage)
-      {
-        source: "/_next/static/:path*",
-        headers: STATIC_ASSET_HEADERS,
-      },
+      //  dev 下 STATIC_ASSET_HEADERS 为空 → 整条 route 不注册, 交给 Next 默认
+      //  (注意: 不能只把 headers 传成空数组, Next 会抛 "Invalid header found")
+      ...(STATIC_ASSET_HEADERS.length > 0
+        ? [{ source: "/_next/static/:path*", headers: STATIC_ASSET_HEADERS }]
+        : []),
     ];
   },
   /**

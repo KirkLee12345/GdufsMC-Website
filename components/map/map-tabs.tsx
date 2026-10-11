@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * 地图类型切换 Tabs (复用于 /map 和 /new-guide-map)
+ * 地图类型切换 Tabs (/map 页的 导览地图 / 群系地图 切换)
  *
  * - 数据: 导览地图 (tour) + 群系地图 (block, 外部链接新标签页打开)
  * - 群系地图 tab 标题右侧带一段网址文字 (域名 + 短路径), 完整 URL 放 title tooltip
- * - 行为跟 /map 页完全一致 (URL 状态走 ?view=, 外部链接 window.open)
+ * - URL 状态走 ?view=, 外部链接走 window.open
  *
  * 客户端组件: useRouter/useSearchParams 需要客户端渲染, 外层包 Suspense 兼容 SSG
  */
@@ -13,7 +13,7 @@
 import { IconExternalLink } from "@tabler/icons-react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/global/utils";
 
 type MapView = "block" | "tour";
 

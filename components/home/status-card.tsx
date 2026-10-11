@@ -12,9 +12,9 @@ import {
   IconBolt,
   IconChevronDown,
 } from "@tabler/icons-react";
-import { GROUP_META, type ServerStatus as ServerStatusT, type ServerGroup } from "@/lib/server/status-constants";
-import { cn } from "@/lib/utils";
-import { logger } from "@/lib/logger";
+import { GROUP_META, type ServerStatus as ServerStatusT, type ServerGroup } from "@/lib/global/server/status-constants";
+import { cn } from "@/lib/global/utils";
+import { logger } from "@/lib/global/logger";
 
 const REFRESH_MS = 5_000;
 const CACHE_KEY = "server-status-cache-v1";

@@ -8,7 +8,7 @@ import {
     useAnimationControls,
     AnimatePresence,
 } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/global/utils";
 
 const NAV_ITEMS = [
     { href: "/", label: "首页" },

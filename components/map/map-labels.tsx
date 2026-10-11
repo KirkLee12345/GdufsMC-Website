@@ -23,7 +23,7 @@ import type {
   NewLabelFontSize,
   NewLabelWithLabelsOverride,
 } from "@/lib/map/labels";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/global/utils";
 
 export interface MapLabelsProps {
   /** 当前维度的标签 (父组件按 worldId 过滤后传入) */

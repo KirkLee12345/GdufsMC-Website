@@ -1,7 +1,7 @@
 /**
  * News 详情页 — /news/[slug]
  *
- * 纯 server component 渲染, 走 lib/news.ts 抽象层
+ * 纯 server component 渲染, 走 lib/news/index.ts 抽象层
  * - 顶部 cover (16:10) + 标题 + meta
  * - summary 摘要卡
  * - content 长文 (white-space: pre-line 保留换行)
