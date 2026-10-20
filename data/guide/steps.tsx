@@ -82,9 +82,9 @@ export const STEPS: Step[] = [
           links: [
             {
               label: "PCL2 启动器",
-              url: "https://ltcat.lanzouv.com/b0aj6gsid",
-              desc: "蓝奏云网盘",
-              password: "密码：pcl2",
+              url: "https://gdufscraft.top/download/PCL-2.14.0.0.zip",
+              desc: "2.14.0 版本，已关闭自动更新，可正常下载 MC 游戏",
+              password: "本站直链",
             },
           ],
         },

@@ -15,7 +15,7 @@
  */
 
 import { Children, useCallback, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { IconChevronLeft, IconChevronRight, IconExternalLink, IconLock } from "@tabler/icons-react";
+import { IconChevronLeft, IconChevronRight, IconExternalLink } from "@tabler/icons-react";
 import { useCarousel } from "@/components/guide/hooks/use-carousel";
 import { cn } from "@/lib/global/utils";
 
@@ -313,7 +313,6 @@ export function Tutorial({ steps }: { steps: Step[] }) {
                             )}
                             {l.password && (
                               <span className="inline-flex items-center gap-1 text-[0.625rem] sm:text-[0.75rem] font-mono px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 flex-shrink-0">
-                                <IconLock className="w-2.5 h-2.5" />
                                 {l.password}
                               </span>
                             )}
