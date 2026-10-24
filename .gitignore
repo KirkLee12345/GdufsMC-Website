@@ -84,6 +84,7 @@ next-env.d.ts
 
 # local runtime and diagnostic output
 /logs/
+/data/bingo-questionnaire-submissions.json
 /pnpm-store/
 /.pnpm-store/
 /_syncheck_result.txt

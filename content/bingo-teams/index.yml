@@ -1,0 +1,13 @@
+# 分队结果发布文件。修改后访问 /bingo-teams 即可查看。
+title: Bingo 大赛分队结果
+subtitle: 队伍名单尚未公布
+# updatedAt: 2026-10-24 20:00
+teams: []
+# 示例格式：
+# teams:
+#   - id: 1
+#     color: 红
+#     name: 红1
+#     members:
+#       - 玩家昵称A
+#       - 玩家昵称B

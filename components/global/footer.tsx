@@ -254,6 +254,7 @@ const NAV_ITEMS = [
   { href: "/map", label: "地图总览" },
   { href: "/news", label: "新闻动态" },
   { href: "/guide", label: "游玩指南" },
+  { href: "/questionnaire", label: "Bingo 调查" },
 ];
 
 function QuickNav() {
