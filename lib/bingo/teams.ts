@@ -6,10 +6,7 @@ import { load as yamlLoad } from "js-yaml";
 import { cache } from "react";
 import type { BingoTeam, BingoTeamsData } from "./types";
 
-const CONTENT_ROOT = process.env.CONTENT_ROOT
-  ? join(process.env.CONTENT_ROOT, "content")
-  : join(process.cwd(), "content");
-const DATA_PATH = join(CONTENT_ROOT, "bingo-teams", "index.yml");
+const DATA_PATH = join(process.cwd(), "data", "bingo-teams", "index.yml");
 
 const DEFAULT_DATA: BingoTeamsData = {
   title: "Bingo 大赛分队结果",

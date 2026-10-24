@@ -106,7 +106,7 @@ function scan(path, rel = "", depth = 0) {
     throw new ContentLimitError("snapshot exceeds file-count or total-size limit");
   }
   const isNews = /^news\/[^/]+\.md$/.test(rel);
-  const isBoard = rel === "leaderboard/index.yml" || rel === "bingo-teams/index.yml";
+  const isBoard = rel === "leaderboard/index.yml";
   const isImage = rel.startsWith("news/images/") && imageExtensions.has(extname(rel).toLowerCase());
   if (!isNews && !isBoard && !isImage) { err(rel, "unsupported content path or file type"); return; }
   const max = isImage ? limits.imageBytes : limits.textBytes;
@@ -257,47 +257,6 @@ function verifyLeaderboard() {
   } catch (error) { err(scope, "leaderboard parse failed: " + error.message); }
 }
 
-function verifyBingoTeams() {
-  const scope = "bingo-teams/index.yml";
-  const file = files.get(scope);
-  // Optional for snapshots created before the temporary tournament pages.
-  if (!file) return;
-  try {
-    const data = yaml.load(readText(file));
-    if (!record(data) || !Array.isArray(data.teams)) {
-      err(scope, "bingo teams must be an object with a teams array"); return;
-    }
-    for (const key of ["title", "subtitle", "updatedAt"]) {
-      if (data[key] !== undefined && typeof data[key] !== "string") err(scope, key + " must be a string");
-    }
-    const colors = ["红", "蓝", "绿", "黄", "橙", "粉", "青", "灰"];
-    const ids = new Set();
-    const players = new Set();
-    if (data.teams.length > 8) err(scope, "at most eight teams are allowed");
-    for (const [index, team] of data.teams.entries()) {
-      const entryScope = scope + ":teams[" + index + "]";
-      if (!record(team)) { err(entryScope, "team must be an object"); continue; }
-      if (!Number.isInteger(team.id) || team.id < 1 || team.id > 8) err(entryScope, "id must be an integer from 1 to 8");
-      if (ids.has(team.id)) err(entryScope, "duplicate team id");
-      ids.add(team.id);
-      if (team.color !== colors[team.id - 1]) err(entryScope, "color must match the team id");
-      if (!text(team.name) || team.name !== `${team.color}${team.id}`) err(entryScope, "name must match color and id");
-      if (!Array.isArray(team.members)) { err(entryScope, "members must be an array"); continue; }
-      if (team.members.length < 2 || team.members.length > 4) err(entryScope, "each team must have 2 to 4 members");
-      for (const member of team.members) {
-        if (!text(member)) { err(entryScope, "member must be a nonempty string"); continue; }
-        const player = member.trim().toLowerCase();
-        if (players.has(player)) err(entryScope, "duplicate player across teams");
-        players.add(player);
-      }
-    }
-  } catch (error) {
-    if (error.code === "ERR_ENCODING_INVALID_ENCODED_DATA") err(scope, "invalid UTF-8");
-    else if (error.code) io(scope, error);
-    else err(scope, "bingo teams parse failed: " + error.message);
-  }
-}
-
 if (targets.length !== 1 || args.some((arg) => arg.startsWith("--") && !["--json", "--allow-empty-news"].includes(arg))) {
   err("usage", "node scripts/verify-content-root.mjs <parent-or-content-dir> [--json] [--allow-empty-news]");
   report(2);
@@ -313,7 +272,6 @@ if (targets.length !== 1 || args.some((arg) => arg.startsWith("--") && !["--json
       }
       verifyNews();
       verifyLeaderboard();
-      verifyBingoTeams();
     }
   } catch (error) { io("content", error); }
   report(ioFailed ? 2 : errors.length ? 1 : 0);

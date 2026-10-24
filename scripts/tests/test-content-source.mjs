@@ -57,8 +57,8 @@ function blob(path, value) {
 function snapshotData() {
   const news = blob("content/news/one.md", "Article data only\n");
   const board = blob("content/leaderboard/index.yml", "entries: []\n");
-  const bingo = blob("content/bingo-teams/index.yml", "title: Bingo\nsubtitle: Results\nteams: []\n");
-  return { tree: [dir("content"), dir("content/news"), dir("content/leaderboard"), dir("content/bingo-teams"), news.entry, board.entry, bingo.entry],
+  const bingo = blob("data/bingo-teams/index.yml", "title: Bingo\nsubtitle: Results\nteams: []\n");
+  return { tree: [dir("content"), dir("content/news"), dir("content/leaderboard"), dir("data/bingo-teams"), news.entry, board.entry, bingo.entry],
     blobs: new Map([[news.entry.sha, news.response], [board.entry.sha, board.response], [bingo.entry.sha, bingo.response]]), news, board, bingo };
 }
 function snapshotMock(data = snapshotData(), overrides = {}) {
@@ -220,13 +220,13 @@ test("snapshot downloads only content blobs, verifies bytes, and returns a separ
   const result = await source.snapshot(B, root);
   assert.equal(result.version, 1);
   assert.equal(result.commit, B);
-  assert.equal(result.files.length, 3);
-  assert.ok(result.files.some((file) => file.path === "bingo-teams/index.yml"));
+  assert.equal(result.files.length, 2);
+  assert.ok(!result.files.some((file) => file.path === "bingo-teams/index.yml"));
   assert.equal(result.files.find((file) => file.path === "news/one.md").sha256, createHash("sha256").update(data.news.bytes).digest("hex"));
   assert.deepEqual(readFileSync(join(root, "content", "news", "one.md")), data.news.bytes);
   assert.equal(existsSync(join(root, "content", "manifest.json")), false);
   assert.equal(existsSync(join(root, "scripts")), false);
-  assert.equal(calls.length, 4);
+  assert.equal(calls.length, 3);
 });
 
 test("existing staging content is never overwritten", async (t) => {
@@ -255,7 +255,8 @@ for (const path of ["content/../outside.md", "content/news/CON.md", "content/new
 for (const [type, mode] of [["blob", "120000"], ["blob", "100755"], ["commit", "160000"]]) {
   test(`snapshot rejects Git mode ${mode}`, async (t) => {
     const data = snapshotData();
-    data.tree[3] = { ...data.tree[3], type, mode };
+    const index = data.tree.findIndex((entry) => entry.path === "content/news/one.md");
+    data.tree[index] = { ...data.tree[index], type, mode };
     await assert.rejects(() => snapshotMock(data).source.snapshot(B, temporaryRoot(t)), code("UNSAFE_MODE"));
   });
 }

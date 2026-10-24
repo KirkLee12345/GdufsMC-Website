@@ -67,7 +67,7 @@ function fixture(t, news = { "example.md": article() }) {
   }
   write(root, "content/news/images/cover.png", image);
   write(root, "content/leaderboard/index.yml", "entries: []\n");
-  write(root, "content/bingo-teams/index.yml", "title: Bingo 大赛分队结果\nsubtitle: 队伍名单尚未公布\nteams: []\n");
+  write(root, "data/bingo-teams/index.yml", "title: Bingo 大赛分队结果\nsubtitle: 队伍名单尚未公布\nteams: []\n");
   return root;
 }
 
@@ -357,9 +357,9 @@ test("valid leaderboard accepts optional change and finite fractional scores", (
   verify(root, 0);
 });
 
-test("Bingo teams accept the published schema and reject invalid assignments", (t) => {
+test("Bingo teams under data are outside content validation", (t) => {
   const root = fixture(t);
-  write(root, "content/bingo-teams/index.yml", [
+  write(root, "data/bingo-teams/index.yml", [
     "title: Bingo 大赛分队结果",
     "subtitle: 队伍名单已公布",
     "teams:",
@@ -374,8 +374,8 @@ test("Bingo teams accept the published schema and reject invalid assignments", (
     "",
   ].join("\n"));
   verify(root, 0);
-  write(root, "content/bingo-teams/index.yml", "teams: [{id: 1, color: 蓝, name: 蓝1, members: [Alice]}]\n");
-  verify(root, 1);
+  write(root, "data/bingo-teams/index.yml", "teams: [{id: 1, color: 蓝, name: 蓝1, members: [Alice]}]\n");
+  verify(root, 0);
 });
 
 test("complete image rename and article additions/deletions validate as snapshots", (t) => {
@@ -396,7 +396,6 @@ test("complete image rename and article additions/deletions validate as snapshot
 for (const [name, path] of [
   ["news", "content/news/example.md"],
   ["leaderboard", "content/leaderboard/index.yml"],
-  ["Bingo teams", "content/bingo-teams/index.yml"],
 ]) {
   test(`invalid UTF-8 ${name} is a content error, not an IO failure`, (t) => {
     const root = fixture(t);
