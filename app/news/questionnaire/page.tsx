@@ -16,7 +16,7 @@ export default function QuestionnairePage() {
           <QuestionnaireForm />
         </div>
         <div className="mt-6 flex flex-wrap gap-4 text-sm">
-          <Link href="/bingo-teams" className="font-medium text-emerald-700 hover:text-emerald-900">查看分队结果 →</Link>
+          <Link href="/news/teams" className="font-medium text-emerald-700 hover:text-emerald-900">查看分队结果 →</Link>
           <span className="text-slate-400">结果公布后开放</span>
         </div>
       </div>

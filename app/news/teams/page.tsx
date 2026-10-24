@@ -26,7 +26,7 @@ export default async function BingoTeamsPage() {
             <p className="mt-3 text-slate-600">{data.subtitle}</p>
             {data.updatedAt && <p className="mt-1 text-xs text-slate-400">更新于 {data.updatedAt}</p>}
           </div>
-          <Link href="/questionnaire" className="text-sm font-medium text-emerald-700 hover:text-emerald-900">返回赛前调查 →</Link>
+          <Link href="/news/questionnaire" className="text-sm font-medium text-emerald-700 hover:text-emerald-900">返回赛前调查 →</Link>
         </div>
         {data.teams.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center text-slate-500">队伍名单尚未公布，请稍后再来查看。</div>
