@@ -39,7 +39,7 @@ function safeParts(path) {
   return parts;
 }
 function allowedFile(path) {
-  if (/^news\/[^/]+\.md$/.test(path) || path === "leaderboard/index.yml") return LIMITS.textBytes;
+  if (/^news\/[^/]+\.md$/.test(path) || path === "leaderboard/index.yml" || path === "bingo-teams/index.yml") return LIMITS.textBytes;
   if (path.startsWith("news/images/") && IMAGE.has(extname(path).toLowerCase())) return LIMITS.imageBytes;
   fail("UNSUPPORTED_FILE", "Snapshot contains an unsupported content file");
 }

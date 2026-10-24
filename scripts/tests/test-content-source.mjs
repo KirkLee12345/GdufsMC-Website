@@ -57,8 +57,9 @@ function blob(path, value) {
 function snapshotData() {
   const news = blob("content/news/one.md", "Article data only\n");
   const board = blob("content/leaderboard/index.yml", "entries: []\n");
-  return { tree: [dir("content"), dir("content/news"), dir("content/leaderboard"), news.entry, board.entry],
-    blobs: new Map([[news.entry.sha, news.response], [board.entry.sha, board.response]]), news, board };
+  const bingo = blob("content/bingo-teams/index.yml", "title: Bingo\nsubtitle: Results\nteams: []\n");
+  return { tree: [dir("content"), dir("content/news"), dir("content/leaderboard"), dir("content/bingo-teams"), news.entry, board.entry, bingo.entry],
+    blobs: new Map([[news.entry.sha, news.response], [board.entry.sha, board.response], [bingo.entry.sha, bingo.response]]), news, board, bingo };
 }
 function snapshotMock(data = snapshotData(), overrides = {}) {
   return mock((path) => {
@@ -219,12 +220,13 @@ test("snapshot downloads only content blobs, verifies bytes, and returns a separ
   const result = await source.snapshot(B, root);
   assert.equal(result.version, 1);
   assert.equal(result.commit, B);
-  assert.equal(result.files.length, 2);
+  assert.equal(result.files.length, 3);
+  assert.ok(result.files.some((file) => file.path === "bingo-teams/index.yml"));
   assert.equal(result.files.find((file) => file.path === "news/one.md").sha256, createHash("sha256").update(data.news.bytes).digest("hex"));
   assert.deepEqual(readFileSync(join(root, "content", "news", "one.md")), data.news.bytes);
   assert.equal(existsSync(join(root, "content", "manifest.json")), false);
   assert.equal(existsSync(join(root, "scripts")), false);
-  assert.equal(calls.length, 3);
+  assert.equal(calls.length, 4);
 });
 
 test("existing staging content is never overwritten", async (t) => {
@@ -271,7 +273,8 @@ test("snapshot enforces zero-byte and per-file sizes before downloading blobs", 
   for (const [path, size] of [["content/news/one.md", 0], ["content/news/one.md", 1024 * 1024 + 1],
     ["content/news/images/large.png", 32 * 1024 * 1024 + 1]]) {
     const data = snapshotData();
-    data.tree[3] = { ...data.tree[3], path, size };
+    const target = data.tree.findIndex((entry) => entry.path === "content/news/one.md");
+    data.tree[target] = { ...data.tree[target], path, size };
     const { source, calls } = snapshotMock(data);
     await assert.rejects(() => source.snapshot(B, temporaryRoot(t)), code("FILE_LIMIT"));
     assert.equal(calls.length, 1);

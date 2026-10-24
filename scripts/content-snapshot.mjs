@@ -30,7 +30,7 @@ function parts(path) {
   return result;
 }
 function fileLimit(path) {
-  if (/^news\/[^/]+\.md$/.test(path) || path === "leaderboard/index.yml") return LIMITS.textBytes;
+  if (/^news\/[^/]+\.md$/.test(path) || path === "leaderboard/index.yml" || path === "bingo-teams/index.yml") return LIMITS.textBytes;
   if (path.startsWith("news/images/") && IMAGES.has(extname(path).toLowerCase())) return LIMITS.imageBytes;
   fail("UNSUPPORTED_FILE", "Unsupported content file path");
 }
